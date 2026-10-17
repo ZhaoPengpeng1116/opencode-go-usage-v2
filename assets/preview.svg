@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="196" viewBox="0 0 560 196">
+  <defs>
+    <style>
+      .bg { fill: #1e1e2e; }
+      .border { fill: none; stroke: #313244; stroke-width: 1.5; }
+      .title { font: 700 17px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #cdd6f4; }
+      .label { font: 400 15px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #cdd6f4; }
+      .pct   { font: 400 15px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #a6e3a1; }
+      .meta  { font: 400 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #9399b2; }
+      .track { fill: #45475a; }
+      .fill  { fill: #a6e3a1; }
+    </style>
+  </defs>
+  <rect class="bg" x="0.75" y="0.75" width="558.5" height="194.5" rx="12"/>
+  <rect class="border" x="0.75" y="0.75" width="558.5" height="194.5" rx="12"/>
+
+  <text class="title" x="28" y="42">Go Usage</text>
+
+  <text class="label" x="28" y="84">5h</text>
+  <text class="pct" x="82" y="84">2%</text>
+  <rect class="track" x="128" y="73" width="150" height="11" rx="4"/>
+  <rect class="fill" x="128" y="73" width="7" height="11" rx="4"/>
+  <text class="meta" x="302" y="84">in 4h 45m</text>
+
+  <text class="label" x="28" y="116">1w</text>
+  <text class="pct" x="82" y="116">1%</text>
+  <rect class="track" x="128" y="105" width="150" height="11" rx="4"/>
+  <rect class="fill" x="128" y="105" width="4" height="11" rx="4"/>
+  <text class="meta" x="302" y="116">in 1d 10h</text>
+
+  <text class="label" x="28" y="148">1mo</text>
+  <text class="pct" x="82" y="148">0%</text>
+  <rect class="track" x="128" y="137" width="150" height="11" rx="4"/>
+  <text class="meta" x="302" y="148">in 30d 23h</text>
+</svg>

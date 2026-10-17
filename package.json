@@ -1,0 +1,23 @@
+{
+  "name": "opencode-go-usage-v2",
+  "version": "0.1.0",
+  "description": "OpenCode v2 CLI plugin: shows OpenCode Go / Go Plus plan usage (rolling 5h / weekly / monthly) in the sidebar.",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://github.com/ZhaoPengpeng1116/opencode-go-usage-v2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZhaoPengpeng1116/opencode-go-usage-v2"
+  },
+  "exports": {
+    ".": "./index.ts",
+    "./tui": "./tui.tsx"
+  },
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "opencode-go",
+    "usage",
+    "quota"
+  ]
+}
