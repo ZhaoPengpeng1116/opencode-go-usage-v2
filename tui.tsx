@@ -113,19 +113,43 @@ function countdown(iso?: string): string {
   return `in ${mins}m`
 }
 
-function progress(percent: number | undefined, width = 10): string {
-  const p = Math.max(0, Math.min(100, percent ?? 0))
-  const filled = Math.round((p / 100) * width)
-  return "█".repeat(filled) + "░".repeat(width - filled)
+type Theme = {
+  text?: {
+    base?: string
+    muted?: string
+    feedback?: {
+      success?: { base?: string }
+      warning?: { base?: string }
+      error?: { base?: string }
+    }
+  }
 }
 
-function line(label: string, win: UsageWindow | undefined): string {
-  if (!win || typeof win.percent !== "number") return `${label} …`
-  const pct = String(Math.round(win.percent)).padStart(3)
-  return `${label} ${pct}% ${progress(win.percent)} ${countdown(win.resetsAt)}`
+function bar(percent: number, width = 10): { filled: number; total: number } {
+  const p = Math.max(0, Math.min(100, percent))
+  return { filled: Math.round((p / 100) * width), total: width }
 }
 
-function GoUsage(props: { intervalSeconds: number }) {
+function UsageLine(props: { label: string; win: UsageWindow | undefined; theme?: Theme }) {
+  const base = () => props.theme?.text?.base
+  const muted = () => props.theme?.text?.muted
+  const fill = () => props.theme?.text?.feedback?.success?.base ?? props.theme?.text?.base
+  if (!props.win || typeof props.win.percent !== "number") {
+    return <text fg={muted()}>{`${props.label} …`}</text>
+  }
+  const pct = String(Math.round(props.win.percent)).padStart(3)
+  const { filled, total } = bar(props.win.percent)
+  return (
+    <box flexDirection="row">
+      <text fg={base()}>{`${props.label} ${pct}% `}</text>
+      <text fg={fill()}>{"█".repeat(filled)}</text>
+      <text fg={muted()}>{"░".repeat(total - filled)}</text>
+      <text fg={muted()}>{` ${countdown(props.win.resetsAt)}`}</text>
+    </box>
+  )
+}
+
+function GoUsage(props: { intervalSeconds: number; theme?: Theme }) {
   const [usage, setUsage] = createSignal<Usage | undefined>()
   const [error, setError] = createSignal<string | undefined>()
 
@@ -156,10 +180,18 @@ function GoUsage(props: { intervalSeconds: number }) {
 
   return (
     <box flexDirection="column">
-      <text>{title()}</text>
-      <text>{line("5h ", usage()?.rolling)}</text>
-      <text>{line("1w ", usage()?.weekly)}</text>
-      <text>{line("1mo", usage()?.monthly)}</text>
+      <text
+        fg={
+          error()
+            ? props.theme?.text?.feedback?.warning?.base ?? props.theme?.text?.muted
+            : props.theme?.text?.base
+        }
+      >
+        {title()}
+      </text>
+      <UsageLine label="5h " win={usage()?.rolling} theme={props.theme} />
+      <UsageLine label="1w " win={usage()?.weekly} theme={props.theme} />
+      <UsageLine label="1mo" win={usage()?.monthly} theme={props.theme} />
     </box>
   )
 }
@@ -188,9 +220,11 @@ export default Plugin.define({
       ],
     }))
 
+    const theme = (context as unknown as { theme?: Theme }).theme
+
     return context.ui.slot({
       append: "sidebar.content",
-      render: () => <GoUsage intervalSeconds={intervalSeconds} />,
+      render: () => <GoUsage intervalSeconds={intervalSeconds} theme={theme} />,
     })
   },
 })
