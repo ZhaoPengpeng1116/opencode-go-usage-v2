@@ -125,28 +125,31 @@ type Theme = {
   }
 }
 
-function bar(percent: number, width = 10): { filled: number; total: number } {
-  const p = Math.max(0, Math.min(100, percent))
-  return { filled: Math.round((p / 100) * width), total: width }
+function headStr(win: UsageWindow | undefined, label: string): string {
+  if (!win || typeof win.percent !== "number") return `${label} …`
+  return `${label} ${String(Math.round(win.percent)).padStart(3)}% `
 }
 
-function UsageLine(props: { label: string; win: UsageWindow | undefined; theme?: Theme }) {
-  const base = () => props.theme?.text?.base
-  const muted = () => props.theme?.text?.muted
-  const fill = () => props.theme?.text?.feedback?.success?.base ?? props.theme?.text?.base
-  if (!props.win || typeof props.win.percent !== "number") {
-    return <text fg={muted()}>{`${props.label} …`}</text>
-  }
-  const pct = String(Math.round(props.win.percent)).padStart(3)
-  const { filled, total } = bar(props.win.percent)
-  return (
-    <box flexDirection="row">
-      <text fg={base()}>{`${props.label} ${pct}% `}</text>
-      <text fg={fill()}>{"█".repeat(filled)}</text>
-      <text fg={muted()}>{"░".repeat(total - filled)}</text>
-      <text fg={muted()}>{` ${countdown(props.win.resetsAt)}`}</text>
-    </box>
-  )
+function barCounts(win: UsageWindow | undefined): { filled: number; total: number } {
+  const total = 10
+  if (!win || typeof win.percent !== "number") return { filled: 0, total }
+  const p = Math.max(0, Math.min(100, win.percent))
+  return { filled: Math.round((p / 100) * total), total }
+}
+
+function fillStr(win: UsageWindow | undefined): string {
+  return "█".repeat(barCounts(win).filled)
+}
+
+function trackStr(win: UsageWindow | undefined): string {
+  const b = barCounts(win)
+  return "░".repeat(b.total - b.filled)
+}
+
+function cdStr(win: UsageWindow | undefined): string {
+  if (!win || typeof win.percent !== "number") return ""
+  const c = countdown(win.resetsAt)
+  return c ? ` ${c}` : ""
 }
 
 function GoUsage(props: { intervalSeconds: number; theme?: Theme }) {
@@ -177,6 +180,9 @@ function GoUsage(props: { intervalSeconds: number; theme?: Theme }) {
   })
 
   const title = () => (error() ? `Go Usage · ${error()}` : "Go Usage")
+  const base = () => props.theme?.text?.base
+  const muted = () => props.theme?.text?.muted
+  const fill = () => props.theme?.text?.feedback?.success?.base ?? props.theme?.text?.base
 
   return (
     <box flexDirection="column">
@@ -189,9 +195,24 @@ function GoUsage(props: { intervalSeconds: number; theme?: Theme }) {
       >
         {title()}
       </text>
-      <UsageLine label="5h " win={usage()?.rolling} theme={props.theme} />
-      <UsageLine label="1w " win={usage()?.weekly} theme={props.theme} />
-      <UsageLine label="1mo" win={usage()?.monthly} theme={props.theme} />
+      <box flexDirection="row">
+        <text fg={base()}>{headStr(usage()?.rolling, "5h ")}</text>
+        <text fg={fill()}>{fillStr(usage()?.rolling)}</text>
+        <text fg={muted()}>{trackStr(usage()?.rolling)}</text>
+        <text fg={muted()}>{cdStr(usage()?.rolling)}</text>
+      </box>
+      <box flexDirection="row">
+        <text fg={base()}>{headStr(usage()?.weekly, "1w ")}</text>
+        <text fg={fill()}>{fillStr(usage()?.weekly)}</text>
+        <text fg={muted()}>{trackStr(usage()?.weekly)}</text>
+        <text fg={muted()}>{cdStr(usage()?.weekly)}</text>
+      </box>
+      <box flexDirection="row">
+        <text fg={base()}>{headStr(usage()?.monthly, "1mo")}</text>
+        <text fg={fill()}>{fillStr(usage()?.monthly)}</text>
+        <text fg={muted()}>{trackStr(usage()?.monthly)}</text>
+        <text fg={muted()}>{cdStr(usage()?.monthly)}</text>
+      </box>
     </box>
   )
 }
